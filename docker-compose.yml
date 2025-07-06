@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # PDF 预处理服务
+  pdf-processor:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - EMBEDDING_MODEL=text-embedding-3-small
+      - CHUNK_SIZE=1000
+      - CHUNK_OVERLAP=200
+      - MAX_CHUNKS_PER_DOCUMENT=100
+      - OUTPUT_DIR=/app/output
+      - TEMP_DIR=/app/temp
+      - RAG_WEBHOOK_URL=http://rag-app:3000/api/webhook/processed-documents
+    volumes:
+      - pdf_data:/app/output
+      - temp_data:/app/temp
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # RAG 应用示例
+  rag-app:
+    build:
+      context: ./examples
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - PDF_PROCESSOR_BASE_URL=http://pdf-processor:3001
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - rag_uploads:/app/uploads
+    depends_on:
+      - pdf-processor
+      - redis
+    restart: unless-stopped
+
+  # Redis (可选 - 用于缓存)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  # MongoDB (可选 - 用于持久化向量存储)
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+volumes:
+  pdf_data:
+  temp_data:
+  rag_uploads:
+  redis_data:
+  mongodb_data: 

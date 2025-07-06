@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Production build
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.test
+
+# Output directories
+output/
+temp/
+processed/
+
+# Logs
+logs/
+*.log
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+.dockerignore
+
+# Cache
+.cache/
+.next/
+.nuxt/
+
+# Test coverage
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+
+# PDF files (教材文件太大，不需要提交)
+*.pdf
+
+# 但是保留示例文件夹中的小PDF文件
+!examples/*.pdf
